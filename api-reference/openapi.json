@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
+    "title": "OpenAPI Call API",
+    "description": "A simple API to retrieve calls",
     "license": {
       "name": "MIT"
     },
@@ -10,7 +10,7 @@
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "https://api.allriseai.com/api"
     }
   ],
   "security": [
@@ -19,9 +19,9 @@
     }
   ],
   "paths": {
-    "/plants": {
+    "/call": {
       "get": {
-        "description": "Returns all plants from the system that the user has access to",
+        "description": "Returns all calls performed on your account",
         "parameters": [
           {
             "name": "limit",
@@ -29,19 +29,87 @@
             "description": "The maximum number of results to return",
             "schema": {
               "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100,
               "format": "int32"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The page number to return",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "format": "int32"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "The type of call to return",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "inboundPhoneCall",
+                "outboundPhoneCall"
+              ]
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "The start date to return calls from. In format YYYY-MM-DD",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "The end date to return calls to. In format YYYY-MM-DD",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "outcome",
+            "in": "query",
+            "description": "The outcome of the call",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Follow Up",
+                "Booked Appointment",
+                "Do Not Call",
+                "Live Transfer",
+                "Not Interested",
+                "Not Qualified"
+              ]
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "Call response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Call"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
                   }
                 }
               }
@@ -58,115 +126,107 @@
             }
           }
         }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
       }
     }
   },
   "components": {
     "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
+      "Call": {
         "type": "object",
         "properties": {
-          "name": {
-            "description": "The name of the plant",
+          "call_id": {
+            "description": "The unique identifier for the call",
             "type": "string"
           },
-          "tag": {
-            "description": "Tag to specify the type",
+          "type": {
+            "description": "The type of call",
+            "type": "string",
+            "enum": [
+              "inboundPhoneCall",
+              "outboundPhoneCall"
+            ]
+          },
+          "customer_phone": {
+            "description": "The phone number of the customer",
             "type": "string"
+          },
+          "end_reason": {
+            "description": "The reason the call ended",
+            "type": "string"
+          },
+          "agent": {
+            "description": "The unique identifier of the agent who performed the call",
+            "type": "string"
+          },
+          "duration": {
+            "description": "The duration of the call in seconds",
+            "type": "integer"
+          },
+          "start_time": {
+            "description": "The time the call started",
+            "type": "string",
+            "format": "date-time"
+          },
+          "end_time": {
+            "description": "The time the call ended",
+            "type": "string",
+            "format": "date-time"
+          },
+          "transcription": {
+            "description": "The transcription of the call",
+            "type": "string"
+          },
+          "outcome": {
+            "description": "The outcome of the call",
+            "type": "string",
+            "enum": [
+              "Follow Up",
+              "Booked Appointment",
+              "Do Not Call",
+              "Live Transfer",
+              "Not Interested",
+              "Not Qualified"
+            ]
+          },
+          "summary": {
+            "description": "A summary of the call",
+            "type": "string"
+          },
+          "recording": {
+            "description": "The URL to the recording of the call",
+            "type": "string"
+          },
+          "created_at": {
+            "description": "The time the call log was created",
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "description": "The total number of calls",
+            "type": "integer"
           },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
+          "limit": {
+            "description": "The maximum number of calls to return per page",
+            "type": "integer"
+          },
+          "page": {
+            "description": "The current page number",
+            "type": "integer"
+          },
+          "nextPage": {
+            "description": "The next page number",
+            "type": "integer"
+          },
+          "totalPages": {
+            "description": "The total number of pages",
+            "type": "integer"
           }
-        ]
+        }
       },
       "Error": {
         "required": [
@@ -175,10 +235,6 @@
         ],
         "type": "object",
         "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
-          },
           "message": {
             "type": "string"
           }
