@@ -31,7 +31,7 @@
     {
       "group": "Calls",
       "pages": [
-        "api-reference/endpoint/get"
+        "api-reference/call/get"
       ]
     }
   ],
