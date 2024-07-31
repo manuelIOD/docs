@@ -21,6 +21,11 @@
   "paths": {
     "/call": {
       "get": {
+        "security": [
+          {
+            "locationAuth": []
+          }
+        ],
         "description": "Returns all calls performed on your account",
         "parameters": [
           {
@@ -111,6 +116,78 @@
                       "$ref": "#/components/schemas/Pagination"
                     }
                   }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/custom-fields": {
+      "get": {
+        "description": "Returns all custom fields on your account",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Custom Fields response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "customFields": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CustomFields"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contacts": {
+      "post": {
+        "description": "Adds a new lead to the system",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Contact"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contact response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
                 }
               }
             }
@@ -228,6 +305,122 @@
           }
         }
       },
+      "CustomFields": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The unique identifier for the custom field",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the custom field",
+            "type": "string"
+          },
+          "fieldKey": {
+            "description": "The key of the custom field",
+            "type": "string"
+          },
+          "placeholder": {
+            "description": "The placeholder text for the custom field",
+            "type": "string"
+          },
+          "position": {
+            "description": "The position of the custom field",
+            "type": "integer"
+          },
+          "dateType": {
+            "description": "The type of the custom field",
+            "type": "string",
+            "enum": [
+              "TEXT",
+              "LARGE_TEXT",
+              "NUMERICAL",
+              "PHONE",
+              "MONETORY",
+              "CHECKBOX",
+              "SINGLE_OPTIONS",
+              "MULTIPLE_OPTIONS",
+              "FLOAT",
+              "TIME",
+              "DATE",
+              "TEXTBOX_LIST",
+              "FILE_UPLOAD",
+              "SIGNATURE"
+            ]
+          },
+          "picklistOptions": {
+            "description": "The picklist options for the custom field",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Contact": {
+        "type": "object",
+        "required": [
+          "phone"
+        ],
+        "properties": {
+          "phone": {
+            "type": "string",
+            "description": "The phone number of the contact",
+            "example": "+11234567890",
+            "pattern": "^\\+?[1-9]\\d{1,14}$"
+          },
+          "email": {
+            "type": "string",
+            "description": "The email address of the contact"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "The first name of the contact"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "The last name of the contact"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "description": "The date of birth of the contact",
+            "format": "date",
+            "example": "1990-01-31"
+          },
+          "address1": {
+            "type": "string",
+            "description": "The first line of the address of the contact"
+          },
+          "city": {
+            "type": "string",
+            "description": "The city of the address of the contact"
+          },
+          "state": {
+            "type": "string",
+            "description": "The state of the address of the contact"
+          },
+          "country": {
+            "type": "string",
+            "description": "The country of the address of the contact"
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "The postal code of the address of the contact"
+          },
+          "customField": {
+            "type": "object",
+            "description": "The custom fields of the contact. You can get the custom field ids from the /custom-fields endpoint",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "example": {
+              "__custom_field_id_1__": "value1",
+              "__custom_field_id_2__": "value2"
+            }
+          }
+
+        }
+      },
       "Error": {
         "required": [
           "error",
@@ -245,6 +438,12 @@
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer"
+      },
+      "locationAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Bearer authentication header of the form **Bearer <location>** where **<location>** is the location key"
       }
     }
   }

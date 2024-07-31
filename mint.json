@@ -33,6 +33,18 @@
       "pages": [
         "api-reference/call/get"
       ]
+    },
+    {
+      "group": "Custom Fields",
+      "pages": [
+        "api-reference/custom-fields/get"
+      ]
+    },
+    {
+      "group": "Contact / Lead",
+      "pages": [
+        "api-reference/contacts/post"
+      ]
     }
   ],
   "footerSocials": {}
