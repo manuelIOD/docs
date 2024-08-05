@@ -43,7 +43,8 @@
     {
       "group": "Contact / Lead",
       "pages": [
-        "api-reference/contacts/post"
+        "api-reference/contacts/post",
+        "api-reference/remove-lead/post"
       ]
     }
   ],
